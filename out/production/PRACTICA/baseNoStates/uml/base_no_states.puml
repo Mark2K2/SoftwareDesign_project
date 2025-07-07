@@ -1,0 +1,204 @@
+@startuml
+'https://plantuml.com/class-diagram
+skinparam classAttributeIconSize 0
+
+class Webserver {
+- {static} PORT :int
+- {static} FORMATTER : DateTimeFormatter
++ Webserver()
+}
+
+class SocketThread {
+- insocked : Socked
+- makeRequest(tokens : String[]) : Request
+- makeRequestReader(tokens : String[]) : RequestReader
+- makeRequestArea(tokens : String[]) : RequestArea
+- makeHeaderAnswer() : String
+- makeJsonAnswer(request : Request) : String
++ run()
+}
+
+Webserver +-right- SocketThread
+
+note right of SocketThread
+inner class
+of Webserver
+end note
+
+class DirectoryAreas {
+- {static} allDoors : Door[]
+- {static} rootArea : Area
+
++ {static} makeAreas()
++ {static} findAreaById(id : String) : Area
++ {static} findDoorById(id : String) : Door
++ {static} getAllDoors() : Door[]
+}
+
+DirectoryAreas --> "*" Area : "rootAreas"
+
+abstract class Area{
+#id : String
++getDoorsGivingAcces() : Door[]
++getName() : String
++findAreaById(id : String) : Area
++getSpaces() : Space[]
+}
+
+Space --|> Area
+Partition --|> "1" Area
+Partition "1" *--> Area
+
+class Space{
++getName() : String
++addDoorGivingAcces(door : Door)
++getDoorsGivingAcces() : Door[]
++getSpaces() : Space[]
+}
+
+class Partition{
++getName(): String
++ findAreaById( id : String): Area
++ getDoorsGivingAccess() : Door[]
++ getSpaces(): Space[]
++fidAreaById(id : String) : Area
+}
+
+class DirectoryUserGroups {
+- {static} userGroups : UserGroup[]
++ {static} makeUserGroup()
++ {static} findUserByCredential(credential : String) : User
+}
+
+DirectoryUserGroups o--> "1..*" UserGroup : userGroups
+
+class UserGroup{
+-nameGroup : String
+-actions : String[]
+
++getUsers() : User[]
++getActions() : String[]
++getAreas() : Area[]
++setActions(actions : String[])
++setSpaces(areas : Area[])
++setSchedule(schecule : Schedule)
++addUser(user : User)
++isWithinSchedule(LocalDateTime dt) : boolean
++canDoAction(action : String) :boolean
++canAcces(area : Area) : boolean
+}
+
+UserGroup --> "1" Schedule : schedule
+UserGroup --> Area : "areas"
+UserGroup *--> "*" User : "users"
+
+class Schedule{
+-fromDate : LocalDate
+-toDate : LocalDate
+-fromHour : LocalTime
+-toHour : LocalTime
+-daysOfWeek : DayOfWeek[]
+
+isSomeDay(day : DayOfWeek) : boolean
+isWithin(LocalDateTime dt) : boolean
+toString() : String
+}
+
+class Door {
+- id : String
+- closed : boolean
++ Door(id : String)
++ processRequest(request : RequestReader)
++ setState(doorState : DoorState)
++ toJson() : JSONObject
+'+ toString() : String
+'+ isClosed() :boolean
+'+ setClosed(b : boolean)
+'+ getStateName() : String
+- doAction(action : String)
+}
+
+
+package doorState{
+    abstract class DoorState{
+    #stateName : String
+    #door : Door
+
+    + getState() : String
+    + open()
+    + close()
+    + lock()
+    + unlock()
+    + unlock_shortly()
+
+    }
+    class Lock extends DoorState{
+        + getState() : String
+        + open()
+        + close()
+        + lock()
+        + unlock()
+        + unlock_shortly()
+    }
+
+    class Unlock extends DoorState{
+        + getState() : String
+        + open()
+        + close()
+        + lock()
+        + unlock()
+        + unlock_shortly()
+
+    }
+
+    class UnlockedShortly extends DoorState{
+        + getState() : String
+        + open()
+        + close()
+        + lock()
+        + unlock()
+        + unlock_shortly()
+    }
+}
+
+Door -> "1" Space : spaceFrom
+Door -> "1" Space : spaceTo
+Space -> "1" Door : doors
+doorState <- Door : state
+
+
+
+class User {
+- name : String
+- credential : String
++getCredential() : String
++getName() : String
++toString() : String
++canBeInSpace(area : Area) : boolean
++canDoAction(action : String) : boolean
++canSendRequest(LocalDateTime dt) : boolean
++ User(name: String, credential: String)
++ toString() : String
+}
+
+
+class Main {
++ {static} main(args : String)
+}
+
+note right of Main::main
+DirectoryAreas.makeAreas()
+DiretoryUserGroups.makeUserGroup()
+new Webserver()
+end note
+
+
+Main -[hidden]down- Webserver
+Schedule -[hidden]left- User
+Webserver -[hidden]down- DirectoryAreas
+Webserver -[hidden]down- DirectoryUserGroups
+Space -[hidden]up- Area
+Partition -[hidden]up- Area
+Door -[hidden]up- DoorState
+
+@enduml

@@ -1,0 +1,27 @@
+
+<configuration>
+
+    <!--TODO: Redirigir los loggers a un fichero. -->
+    <appender name="STDOUT" class="ch.qos.logback.core.Consoleappender">
+            <encoder> <pattern>
+                %d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+            </pattern></encoder>
+    </appender>
+
+    <!--TODO: Cambiar el level del root y que se muestren solo los loggers que indicamos -->
+    <root level="error">
+            <appender-ref ref="STDOUT" />
+    </root>
+
+    <!--Creo que hay que crear solo .DoorState y en cada subclase añadir .SubClase, así es como
+        está hecho ahora, debería funcionar así (en teoría), no me fiaría demasiado porque me lo
+        dijo chatGPT, pero la verdad que tiene sentido para no crear mil loggers aquí-->
+
+    <!-- en level hay que poner el nivel más restrictivo de los logs que creará cada logger específico -->
+    <logger name="baseNoStates.DoorState" level="warn"/>
+    <logger name="baseNoStates.DirectoryAreas" level="error"/>
+    <logger name="baseNoStates.DirectoryUserGroups" level="error"/>
+    <logger name="baseNoStates.WebServer" level="error"/>
+    <logger name="baseNoStates.Observable.Clock" level="info"/> <!-- Observable.Clock o .Clock a secas?? -->
+
+</configuration>
